@@ -8,6 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from PIL import Image, ImageTk
 import re, io, os, requests
+import sys
 
 import json
 
@@ -21,10 +22,21 @@ root = Tk()
 root.title("Select an Image")
 root.withdraw()
 
-# Load the icon image (replace 'icon.ico' with your icon file)
-icon_image = PhotoImage(file="./favicon.png")
+# Check if the script is running in a PyInstaller environment
+if getattr(sys, 'frozen', False):
+    # We are in a PyInstaller environment
+    base_directory = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(sys.executable)))
 
-# Set the window's icon
+    # Specify the relative path to the icon file
+    icon_path = os.path.join(base_directory, "favicon.png")
+else:
+    # We are running as a regular Python script
+    icon_path = "favicon.png"
+
+# Load the icon image
+icon_image = PhotoImage(file=icon_path)
+
+# Set the window's icon using the PhotoImage
 root.wm_iconphoto(True, icon_image)
 
 # Load last used locations from a configuration file
@@ -260,6 +272,7 @@ def open_again():
 
     def close():
         custom_dialog.destroy()
+        root.destroy()
 
     def okay():
         custom_dialog.destroy()

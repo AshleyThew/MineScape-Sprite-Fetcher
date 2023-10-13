@@ -16,4 +16,4 @@ Install:
 
 Package:
 
-`pipenv run pyinstaller --onefile --noconsole --name=MineScape-Sprite-Fetcher --icon=favicon.png main.py`
+`pipenv run pyinstaller --onefile --noconsole --name=MineScape-Sprite-Fetcher --icon=favicon.png --add-data "favicon.png;." main.py`
