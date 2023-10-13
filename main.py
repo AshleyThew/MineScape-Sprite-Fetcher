@@ -1,5 +1,5 @@
 
-from tkinter import simpledialog, messagebox, Tk, Label, Button, filedialog, END, Toplevel, WORD, Text, DISABLED
+from tkinter import simpledialog, messagebox, Tk, Label, Button, filedialog, END, Toplevel, WORD, Text, DISABLED, PhotoImage
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -16,6 +16,16 @@ last_used_locations = {
     "png": "",
     "json": "",
 }
+
+root = Tk()
+root.title("Select an Image")
+root.withdraw()
+
+# Load the icon image (replace 'icon.ico' with your icon file)
+icon_image = PhotoImage(file="./favicon.png")
+
+# Set the window's icon
+root.wm_iconphoto(True, icon_image)
 
 # Load last used locations from a configuration file
 def load_last_used_locations():
@@ -119,15 +129,14 @@ def get_infobox(url, length):
     return [img_urls, names]
 
 def display_images(images):
-    root = Tk()
-    root.title("Select an Image")
 
     selected_image = None
 
     def select_image(image_url, index):
         nonlocal selected_image
         selected_image = [image_url, index]
-        root.destroy()
+        root.quit()
+        root.withdraw()
 
     col = 0
 
@@ -150,6 +159,7 @@ def display_images(images):
         # Center the custom dialog
     root.geometry(f"+{root.winfo_screenwidth() // 2 - root.winfo_reqwidth() // 2}+{root.winfo_screenheight() // 2 - root.winfo_reqheight() // 2}")
 
+    root.deiconify()
     root.mainloop()
     return selected_image
 
@@ -274,7 +284,6 @@ def open_again():
     custom_dialog.geometry(f"+{custom_dialog.winfo_screenwidth() // 2 - custom_dialog.winfo_reqwidth() // 2}+{custom_dialog.winfo_screenheight() // 2 - custom_dialog.winfo_reqheight() // 2}")
 
     # Display the custom dialog as a modal dialog
-    # custom_dialog.transient(root)
     custom_dialog.grab_set()
     custom_dialog.focus_set()
     # Start the Tkinter main loop
