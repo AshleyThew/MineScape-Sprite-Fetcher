@@ -181,14 +181,14 @@ def download_and_save_image(image_url, lower_name, max_size=(32, 32)):
     if response.status_code == 200:
         # Ask the user for a file path to save the image
         file_path = filedialog.asksaveasfilename(
-            title="Save Image",
+            title="Save Image to textures/item/custom/*",
             defaultextension=".png",
             filetypes=[("PNG files", "*.png")],
             initialdir=os.path.dirname(last_used_locations.get("png", "")),
             initialfile=lower_name)
 
-        if 'ms/models' not in file_path:
-            messagebox.showerror("Error", "Please save to 'ms/models/*'")
+        if 'item/custom' not in file_path:
+            messagebox.showerror("Error", "Please save to 'item/custom/*'")
             return None
 
         if file_path:
@@ -221,14 +221,17 @@ def download_and_save_image(image_url, lower_name, max_size=(32, 32)):
     
     return None
 
-def open_save_item(path, upper_name):
+def open_save_item(saved, upper_name):
     file_path = filedialog.askopenfilename(
         title=f"Save To Model JSON...",
         defaultextension=".json",
         filetypes=[("JSON files", "*.json")],
         initialdir=os.path.dirname(last_used_locations.get("json", "")),
         )
-        
+    paths = saved.split("minecraft/textures/item/custom/")
+    png_path = paths[1].split(".png")[0]
+    json_path = os.path.join(paths[0], 'ms/models/', png_path + ".json")
+
     if file_path:
         last_used_locations['json'] = file_path
         save_last_used_locations()
@@ -250,7 +253,7 @@ def open_save_item(path, upper_name):
                 # Extract the custom_model_data value if a match is found
                 if custom_model_data_match:
                     custom_model_data = custom_model_data_match.group(1)
-                    lines[i] = line.replace("item/empty", "ms:" + path)
+                    lines[i] = line.replace("item/empty", "ms:" + png_path)
                     replaced = True
                     filename = os.path.splitext(os.path.basename(file_path))[0]
                     add_item(upper_name + '\t' + filename + '\t' + custom_model_data)
@@ -260,6 +263,15 @@ def open_save_item(path, upper_name):
             # Write the modified content back to the file
             with open(file_path, 'w') as file:
                 file.writelines(lines)
+            if not os.path.exists(os.path.dirname(json_path)):
+                os.makedirs(os.path.dirname(json_path))
+            with open(json_path, 'w') as file:
+                file.writelines(f"""{{
+	"parent": "item/handheld",
+	"textures": {{
+		"layer0": "item/custom/{png_path}"
+	}}
+}}""")
         else:
             messagebox.showerror("Error", "'item/empty' not found in file.")
     else:
@@ -332,8 +344,7 @@ def main():
                 name = names[selected[1]]
                 saved = download_and_save_image('https://oldschool.runescape.wiki/' + selected[0], name.lower())
                 if saved:
-                    path = saved.split("ms/models/")[1]
-                    open_save_item(path, name)
+                    open_save_item(saved, name)
             else:
                 messagebox.showerror("Error", "No images selected.")
         else:
